@@ -1,6 +1,10 @@
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
+resolvers += Resolver.sbtPluginRepo("releases")
+
 // The Play plugin
+addSbtPlugin("org.jetbrains" % "sbt-structure-extractor" % "2017.2")
+addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "2017.2")
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.11")
 
 // source code formatting

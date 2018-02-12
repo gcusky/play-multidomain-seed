@@ -11,6 +11,7 @@ lazy val web = (project in file("modules/web")).enablePlugins(PlayScala).depends
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala).aggregate(common, admin, web).dependsOn(common, admin, web)
 
+updateConfiguration in updateSbtClassifiers := (updateConfiguration in updateSbtClassifiers).value.withMissingOk(true)
 
 libraryDependencies ++= Common.commonDependencies
 
