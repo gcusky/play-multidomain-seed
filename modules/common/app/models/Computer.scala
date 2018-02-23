@@ -1,6 +1,6 @@
 package models
 
-import java.util.{ Date }
+import java.util.Date
 
 case class Computer(id: Long, name: String, introduced: Option[Date], discontinued: Option[Date], company: String)
 

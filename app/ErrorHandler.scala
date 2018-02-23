@@ -1,10 +1,10 @@
-import play.api.http.DefaultHttpErrorHandler
+import javax.inject.{ Inject, Provider, Singleton }
 import play.api._
+import play.api.http.DefaultHttpErrorHandler
 import play.api.mvc._
-import play.api.mvc.Results._
 import play.api.routing.Router
+
 import scala.concurrent.Future
-import javax.inject.{ Singleton, Inject, Provider }
 
 @Singleton
 class ErrorHandler @Inject() (

@@ -1,0 +1,23 @@
+
+
+################################################################################################
+# COMMON
+
+reload=重载
+button=使用CoffeeScript启动演示模式
+
+computers=电脑
+computer.name=名称
+computer.introduced=介绍
+computer.discontinued=停产
+computer.company=公司
+
+modal.title=模块标题
+modal.text=这是一个模块
+modal.close=关闭
+
+
+error.unknown.title=糟糕，发生错误
+error.unknown.text=此异常已使用ID <strong>{0}</strong> 记录。
+error.notfound.title=处理程序未找到
+error.notfound.text=要求 ''{0}''

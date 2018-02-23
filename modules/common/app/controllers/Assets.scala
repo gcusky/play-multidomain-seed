@@ -32,7 +32,7 @@ abstract class SharedResources(errorHandler: DefaultHttpErrorHandler, conf: Conf
   def rsc(filename: String) = Action.async { implicit request =>
     {
       val file = new File(path + filename)
-      if (file.exists() && file.isFile())
+      if (file.exists() && file.isFile)
         Future.successful(Ok.sendFile(file))
       else
         errorHandler.onClientError(request, NOT_FOUND, "File not found")

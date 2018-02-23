@@ -13,11 +13,12 @@ object Common {
   def appName = "play-multidomain-seed"
 	
   // Common settings for every project
+  // 每个项目的通用设置
   def settings (theName: String) = Seq(
     name := theName,
     organization := "com.myweb",
     version := "1.0-SNAPSHOT",
-    scalaVersion := "2.12.3",
+    scalaVersion := "2.12.4",
     // suppress API doc generation
     sources in (Compile, doc) := Seq.empty,
     publishArtifact in (Compile, packageDoc) := false,
@@ -79,7 +80,7 @@ object Common {
     val destinationDir = managedDir / "conf"
     destinationDir.mkdirs()
     files.map { file =>
-      val destinationFile = destinationDir / file.getName()
+      val destinationFile = destinationDir / file.getName
       IO.copyFile(file, destinationFile)
       file
     }
@@ -89,7 +90,7 @@ object Common {
   * Utilities to generate the messages files
   */
 	
-  val conf = ConfigFactory.parseFile(new File("conf/shared.dev.conf")).resolve()
+  val conf: Config = ConfigFactory.parseFile(new File("conf/shared.dev.conf")).resolve()
   val langs = scala.collection.JavaConverters.asScalaBuffer(conf.getStringList("play.i18n.langs"))
 	
   lazy val messagesGenerator = taskKey[Seq[File]]("Generate the messages resource files.")
@@ -102,7 +103,7 @@ object Common {
       val originFiles = messagesFilesFrom.map(subproject => rootDir / "modules" / subproject / "conf" / "messages" / messagesFilename)
       val destinationFile = destinationDir / messagesFilename
       IO.write(destinationFile, "## GENERATED FILE ##\n\n", append = false)
-      originFiles.map { file =>
+      originFiles.foreach { file =>
         IO.writeLines(destinationFile, lines = IO.readLines(file), append = true)
       }
       destinationFile
