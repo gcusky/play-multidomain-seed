@@ -1,49 +1,48 @@
-## Multidomain Seed [Play 2.6 - Scala]
+# Multidomain Seed [Play 2.6 - Scala]
 
-__Note:__ This is just a quick migration of adrianhurt's play-multidomain-seed to Play 2.6 and sbt 1.0. The rest - including these docs - is unchanged.
+> __注意:__ 这只是 woyzeck 将 adrianhurt 的 `play-multidomain-seed` 快速迁移到 Play 2.6 和 sbt 1.1。 其余的 - 包括这些文档 - 没有改变。gcusky 对文档翻译成中文。
 
-Let's suppose you want to develop a whole project which has two different services: the typical public webpage and the private admin one. You also want a specific subdomain for the admin webpage, so we will have:
+假设您想要开发一个包含两种不同服务的整个项目：典型的公共网页和私人管理服务。您还需要管理网页的特定子域名，因此我们将拥有：
 
-* `admin.myweb.com`: private administration webpage.
-* `www.myweb.com` or `myweb.com`: public webpage.
+- `admin.myweb.com`：私人管理网页
+- `www.myweb.com` 或 `myweb.com`：公共网页
 
-And let's also suppose you prefer to have these services isolated in your production server. So you would be able to manage them separately (with different PIDs, different ports, different resources…).
+让我们假设您更喜欢在生产服务器中隔离这些服务。因此，您可以单独管理它们（使用不同的pid、不同的端口、不同的资源……）。
 
-Then, we have the following objectives:
+然后，我们有以下目标：
 
-* Development should be simple. `sbt run` should be enough to run all services at the same time.
-* Common code, dependencies and modules should be easily shared.
-* We should be able to compile, test and run each service separately in development and production.
-* We should distribute each service separately.
-* It should be a template ready to use with the following features:
-  * [Webjars](http://www.webjars.org).
-  * [CoffeeScript](http://coffeescript.org) and [LESS](http://lesscss.org) Assets.
-  * [Assets with RequireJS, Digest, Etag, Gzip, Fingerprint](http://www.playframework.com/documentation/2.5.x/Assets).
-* It shoud explain:
-  * How to share every common code to avoid duplications (models, controllers, views, CoffeeScript, LESS, ...).
-  * How to use it for development, test and production.
+- 开发应该是简单的。`sbt run` 应该足以同时运行所有服务。
+- 公共代码、依赖项和模块应该易于共享。
+- 我们应该能够在开发和生产中分别编译、测试和运行每个服务。
+- 我们应该分别分配每个服务。
+- 它应该是一个可以使用以下特性的模板：
+    - webjar
+    - coffeeScript、LESS
+    - requireJS、Digest、Etag、Gzip、Fingerprint
+- 它应该解释：
+    - 如何共享每个公共代码以避免重复(模型、控制器、视图、coffeeScript、LESS……)。
+    - 如何将其用于开发、测试和生产。
 
+如果你认为它对你有帮助的话，请不要忘记主演这个项目。
 
-And please, don't forget starring this project if you consider it has been useful for you.
+也可以查看我的其他项目：
 
-Also check my other projects:
+- Play Multidomain Auth [Play 2.5 - Scala]
+- Play-Bootstrap - Play library for Bootstrap [Scala & Java]
+- Play Silhouette Credentials Seed [Play 2.5 - Scala]
+- Play API REST Template [Play 2.5 - Scala]
 
-* [Play Multidomain Auth [Play 2.5 - Scala]](https://github.com/adrianhurt/play-multidomain-auth)
-* [Play-Bootstrap - Play library for Bootstrap [Scala & Java]](https://adrianhurt.github.io/play-bootstrap)
-* [Play Silhouette Credentials Seed [Play 2.5 - Scala]](https://github.com/adrianhurt/play-silhouette-credentials-seed)
-* [Play API REST Template [Play 2.5 - Scala]](https://github.com/adrianhurt/play-api-rest-seed)
+## 多项目
 
-### Multiproject
+这个模板有三个子项目：
 
-This template has 3 subprojects:
+- `web`：将包含所有用于公共网页服务的特定代码。
+- `admin`：将包含私有管理网页服务的所有特定代码。
+- `common`：将包含在其他子项目之间共享的所有公共代码。
 
-* `web`: will contain all the specific code for the public webpage service.
-* `admin`: will contain all the specific code for the private administration webpage service.
-* `common`: will contain all the common code shared between the other subprojects.
+显然，这是一个模板，因此您可以很容易地更改它的名称或添加更多的模块。一旦你理解了它的工作原理，你就会发现它很容易修改。
 
-Obviously, this is a template, so you can easily change its names or add more modules. Once you understand how it works you will find it easy to modify.
-
-This is the basic structure of the whole project:
+这是整个项目的基本结构：
 
 ```
 play-multidomain-seed
@@ -93,329 +92,384 @@ play-multidomain-seed
      └ ...
 ```
 
-Let's try to explain briefly how it is configured. For running the whole project we have the following configuration files:
+让我们来简要解释一下它是如何配置的。对于运行整个项目，我们有以下配置文件：
 
-* `build.sbt`: configures root project and declares every subproject.
-* `conf/root-dev.conf` _(used when whole project is running)_: the default one. In the next section it is explained in detail.
-* `conf/routes` _(used when whole project is running)_: routes file for the whole project. It simply imports the routes file of every subproject.
-* `app/RequestHandler.scala` _(used when whole project is running)_: the RequestHandler object for the whole project. It determines the subdomain for each request (admin or web) and delegates its behaviour to the corresponding subproject.
-* `app/ErrorHandler.scala` _(used when whole project is running)_: the ErrorHandler object for the whole project. It determines the subdomain for each request (admin or web) and delegates its behaviour to the corresponding subproject.
+- `build.sbt`：配置根项目并声明每个子项目。
+- `conf/root-dev.conf`(在整个项目运行时使用)：一个默认的配置。下一节将详细解释。
+- `conf/routes`(在整个项目运行时使用)：整个项目的路由文件。它只导入每个子项目的路由文件。
+- `app/RequestHandler.scala`(在整个项目运行时使用)：整个项目的 RequestHandler 对象。它为每个请求(admin或web)确定子域，并将其行为委托给相应的子项目。
+- `app/ErrorHandle.scala`(在整个项目运行时使用)：整个项目的 ErrorHandler 对象。它为每个请求(admin或web)确定子域，并将其行为委托给相应的子项目。
 
-And for running each subproject independently:
+并且独立地运行每个子项目：
 
-* `modules/[subproject]/build.sbt`: configures the [subproject].
-* `modules/[subproject]/conf/[subproject]-dev.conf` _(used when only this subproject is running)_: the default one, it declares the routes file for the subproject while running or testing only this subproject.
-* `modules/[subproject]/conf/[subproject]-prod.conf` _(used when only this subproject is running)_: it declares the routes file for the subproject while distributing only this subproject.
-* `modules/[subproject]/conf/[subproject].routes` _(used when only this subproject is running)_: routes file for this subproject.
-* `modules/[subproject]/app/utils/ErrorHandler.scala` _(used when only this subproject is running)_: the ErrorHandler object for this subproject.
+- `modules/[subproject]/build.sbt`：配置子项目
+- `modules/[subproject]/conf/[subproject]-dev.conf`(在整个项目运行时使用)：默认情况下，它在运行或测试子项目时声明子项目的路由文件。
+- `modules/[subproject]/conf/[subproject]-prod.conf`(在整个项目运行时使用)：它在只分发这个子项目时声明子项目的路由文件。
+- `modules/[subproject]/conf/[subproject].routes`(在整个项目运行时使用)：这个子项目的路由文件。
+- `modules/[subproject]/app/utils/ErrorHandler.scala`(在整个项目运行时使用)：这个子项目的ErrorHandler对象。
 
-The common code for every  `build.sbt` file is defined at:
+每个 `build.sbt` 文件的通用代码定义如下：
 
-* `project/Common.scala`:  contains all the shared common variables and code for sbt files.
+- `project/Common.scala`：包含所有共享的通用变量和sbt文件的代码。
 
-And the rest of relevant folders and files are:
+其余的相关文件夹和文件有：
 
-* `modules/[subproject]/app/assets/javascripts/`: folder for CoffeeScript files of this subproject.
-* `modules/[subproject]/app/assets/stylesheets/`: folder for LESS files of this subproject.
-* `modules/[subproject]/app/controllers/`: folder for the controllers of this subproject.
-* `modules/[subproject]/app/controllers/Assets.scala`: it is necessary to implement an `object Assets extends controllers.AssetsBuilder` for every subproject.
-* `modules/[subproject]/app/views/[subproject]/`: folder for the views of this subproject.
-* `modules/[subproject]/public/`: folder for every public file of this subproject.
-* `modules/[subproject]/test/`: folder for every test file for this subproject.
+- `modules/[subproject]/app/assets/javascripts/`：此子项目的 CoffeeScript 文件夹。
+- `modules/[subproject]/app/assets/stylesheets/`：此子项目的 LESS 文件夹。
+- `modules/[subproject]/app/controllers/`：这个子项目的控制器的文件夹。
+- `modules/[subproject]/app/controllers/Assets.scala`：有必要为每个子项目实施 `object Assets extends controllers.AssetsBuilder`。
+- `modules/[subproject]/app/views/[subproject]/`：这个子项目视图的文件夹。
+- `modules/[subproject]/public/`：这个子项目的所有公共文件的文件夹。
+- `modules/[subproject]/public/`：这个子项目的所有测试文件的文件夹。
 
-Please check the _Splitting the route file_ section within the documentation page about [SBT Sub-projects](http://www.playframework.com/documentation/2.5.x/SBTSubProjects).
+请查阅文档页中关于[SBT子项目](https://www.playframework.com/documentation/2.6.x/SBTSubProjects)的路由文件部分。
 
-### Configuration files
+## 配置文件
 
-As we want to run or test the whole project and also run, test or dist _admin_ and _web_ subprojects, we have several configuration files. Each one has its own particular purpose:
+当我们想要运行或测试整个项目，并且运行、测试或管理和web子项目时，我们有几个配置文件。每个人都有自己独特的目的：
 
-* `conf/root-dev.conf`: the configuration file that is called by default when the whole project is running. It simply includes the `shared.dev.conf` file.
-* `conf/shared.dev.conf`: declares all the development configuration shared for the whole project and every subproject.
-* `conf/shared.prod.conf`: includes the `shared.dev.conf` file and overrides every configuration that is specific for production and it is shared for the whole project and every subproject.
+- `conf/root-dev.conf`：在整个项目运行时默认调用的配置文件。它只包含 `shared.dev.conf` 文件。
+- `conf/shared.dev.conf`：为整个项目和每个子项目声明所有的开发配置。
+- `conf/shared.prod.conf`：包括 `shar.dev.conf` 文件，并覆盖特定于生产的每个配置，并为整个项目和每个子项目共享。
+- `modules/[subproject]/conf/[subproject].conf`：声明用于开发或生产的子项目的特定配置。它必须声明这个子项目的路由文件。
+- `modules/[subproject]/conf/[subproject]-dev.conf`：在子项目运行时默认调用的配置文件。它只包括 `shared.dev.conf` 和 `[subproject].conf` 文件。 
+- `modules/[subproject]/conf/[subproject]-prod.conf`：为这个子项目声明特定的配置。它包括 `shared.dev.conf` 和 `[subproject].conf` 文件。 
 
-* `modules/[subproject]/conf/[subproject].conf`: declares the specific configuration for this subproject for development or production. It must declare the route file for this subproject.
-* `modules/[subproject]/conf/[subproject]-dev.conf`: the configuration file that is called by default when the [subproject] is running. It simply includes the `shared.dev.conf` and `[subproject].conf` files.
-* `modules/[subproject]/conf/[subproject]-prod.conf`: declares the specific configuration for this subproject for production. It includes the `shared.prod.conf` and `[subproject].conf` files.
+如您所见，我们有一些共享的配置文件：`shared.dev.conf` 和 `shared.prod.conf`。我们需要为每个项目(根和子项目)提供它们。在每个子项目的每个 `conf` 目录中都应该复制两个文件。但是有一种简单的方法可以避免代码复制和最小化错误，它在 `project/Common.scala` 中定义了一个新的 [resourceGenerator](http://www.scala-sbt.org/release/docs/Howto-Generating-Files.html#Generate+resources)。然后，每次编译代码时，每个 `shared.*.conf` 文件都将在相应的路径中复制。注意，这些文件**只**会在 `target` 文件中生成。
 
-As you can see, we have some shared configuration files: `shared.dev.conf` and `shared.prod.conf`. And we need them for every project (the root one and the subprojects).
-Both files shoud be replicated within each `conf` directory for every subproject. But there is an easy way to avoid code replication and minimize errors, and it's defining a new [resourceGenerator](http://www.scala-sbt.org/release/docs/Howto-Generating-Files.html#Generate+resources) within `project/Common.scala`.
-Then, each time the code is compiled, every `shared.*.conf` file will be replicated within the corresponding path. Note these files will __only__ be generated within the `target` file.
+它已在许多配置文件中添加了一个名为 `this.file` 的密钥，并且在运行它时会显示在索引网页中。请使用它来查看它是如何被每个配置文件覆盖的，这取决于您正在运行的项目和模式(dev或prod)。
 
-It has been added a key called `this.file` in many of the configuration files and it is shown in the index web page when you run it. Please, play with it to see how it is overridden by each configuration file depending the project and mode (dev or prod) you are running.
+每个案例对应的配置文件都是正确的，这要归功于 `common.scala` 中的设置行：
 
-The corresponding configuration file is correctly taken for each case thanks to the settings lines in `Common.scala`:
+```
+javaOptions += s"-Dconfig.resource=$module-dev.conf"
+```
 
-    javaOptions += s"-Dconfig.resource=$module-dev.conf"
+## 资源：RequireJS, Digest, Etag, Gzip, Fingerprint
 
-### Assets: RequireJS, Digest, Etag, Gzip, Fingerprint
+要配置所有这些功能，对于每个服务（`web` 和 `admin`），我们都有以下内容：
 
-To configure all of these features, for each service (`web` and `admin`) we have the following:
+```scala
+pipelineStages := Seq(rjs, digest, gzip)
+RjsKeys.mainModule := s"main-$module"
+```
 
-    pipelineStages := Seq(rjs, digest, gzip)
-    RjsKeys.mainModule := s"main-$module"
+第一行声明了资产管道。第二种设置为每个模块建立相应的RequireJS主配置文件。
 
-The first line declares the asset pipeline. The second one establishes the corresponding _RequireJS_ main config file to each module.
+然后你就可以把通用的需求模块放在子项目中，然后，您可以将常见的 RequireJS 模块放入子文件夹 `common` 中，在 `modules/common/app/assets/javascripts/common/` 文件夹内。并且每个子项目的具体代码将被添加到其相应的文件夹 `modules/[subproject]/app/assets/javascripts/` 中。在运行整个项目时请注意可能的命名空间问题。 在该示例中，子项目admin在子文件夹admin中具有其他RJS模块。
 
-Then you can put the common RequireJS modules in the subproject `common`, within the folder `modules/common/app/assets/javascripts/common/`. And the specific code for each subproject will be added within its corresponding folder `modules/[subproject]/app/assets/javascripts/`. Take care with possible namespace problems while running the whole project. In the example, the subproject _admin_ has other _RJS module_ within subfolder _admin_.
+常见资产被打包为依赖于它的其他子项目的 Webjar，因此您必须在 RJS 配置文件中指定相应的公用库的 RequireJS 路径为：
 
-The common Assets are packaged as Webjars for the other subprojects that depend on it, so you must indicate the corresponding _RequireJS path_ to the common lib in the _RJS config file_ as:
+```
+require.config
+  paths:
+    common: "../lib/common/javascripts"
+    jquery: "../lib/jquery/jquery"
+    ...
+```
 
-    require.config
-      paths:
-        common: "../lib/common/javascripts"
-        jquery: "../lib/jquery/jquery"
-        ...
+现在我们只需要将 RequireJS 声明为：
 
-Now we just simply need to declare the RequireJS as:
+```
+<script data-main="@routes.Assets.versioned("javascripts/main-web.js")" src="@routes.Assets.versioned("lib/requirejs/require.js")" type="text/javascript"></script>
+```
 
-    <script data-main="@routes.Assets.versioned("javascripts/main-web.js")" src="@routes.Assets.versioned("lib/requirejs/require.js")" type="text/javascript"></script>
+有关更多信息，请转到有关[资产](http://www.playframework.com/documentation/2.6.x/Assets)的文档页面，Activator UI中的教程 `play-2.3-highlight` 或 [RequireJS](http://requirejs.org/) 的网站。
 
-For more information, go to the documentation page about [Assets](http://www.playframework.com/documentation/2.5.x/Assets), the tutorial `play-2.3-highlights` in Activator UI, or the website of [RequireJS](http://requirejs.org).
+## 自定义 AssetsBuilder
 
-#### Custom AssetsBuilder
+为了避免这样的代码：
 
-In order to avoid code like this:
+```
+href="@routes.Assets.versioned("images/favicon.png")"
+href="@routes.Assets.versioned("stylesheets/main.css")">
+data-main="@routes.Assets.versioned("javascripts/main-web.js")"
+src="@routes.Assets.versioned("lib/requirejs/require.js")"
+src="@routes.Assets.versioned("lib/common/images/logo.png")"
+```
 
-    href="@routes.Assets.versioned("images/favicon.png")"
-    href="@routes.Assets.versioned("stylesheets/main.css")">
-    data-main="@routes.Assets.versioned("javascripts/main-web.js")"
-    src="@routes.Assets.versioned("lib/requirejs/require.js")"
-    src="@routes.Assets.versioned("lib/common/images/logo.png")"
+因为要记住每个资源的具体路径（取决于其类型或者是否来自公共子项目），可能非常繁琐，因此我更喜欢使用以下语法：
 
-because it can be very tedious to remember the specific path for every resource depending of its type or if it's from the common subproject or not, I prefer using this syntax:
+```
+href="@routes.Assets.img("favicon.png")"
+href="@routes.Assets.css("main.css")">
+data-main="@routes.Assets.js("main-web.js")"
+src="@routes.Assets.lib("requirejs/require.js")"
+src="@routes.Assets.commonImg("logo.png")"
+```
 
-    href="@routes.Assets.img("favicon.png")"
-    href="@routes.Assets.css("main.css")">
-    data-main="@routes.Assets.js("main-web.js")"
-    src="@routes.Assets.lib("requirejs/require.js")"
-    src="@routes.Assets.commonImg("logo.png")"
+为了得到这个，我们只需要定义一个自定义的 AssetsBuilder 类（你可以在 `modules/common/app/controllers/Assets.scala` 中看到它）。
 
-To get that we only need to define a custom `AssetsBuilder` class (you can see it in `modules/common/app/controllers/Assets.scala`).
+```
+package controllers.common
+class Assets(errorHandler: DefaultHttpErrorHandler) extends AssetsBuilder(errorHandler) {
+  def public (path: String, file: Asset) = versioned(path, file)
+  def lib (path: String, file: Asset) = versioned(path, file)
+  def css (path: String, file: Asset) = versioned(path, file)
+  def commonCss (path: String, file: Asset) = versioned(path, file)
+  def js (path: String, file: Asset) = versioned(path, file)
+  def commonJs (path: String, file: Asset) = versioned(path, file)
+  def img (path: String, file: Asset) = versioned(path, file)
+  def commonImg (path: String, file: Asset) = versioned(path, file)
+}
+```
 
-    package controllers.common
-    class Assets(errorHandler: DefaultHttpErrorHandler) extends AssetsBuilder(errorHandler) {
-      def public (path: String, file: Asset) = versioned(path, file)
-      def lib (path: String, file: Asset) = versioned(path, file)
-      def css (path: String, file: Asset) = versioned(path, file)
-      def commonCss (path: String, file: Asset) = versioned(path, file)
-      def js (path: String, file: Asset) = versioned(path, file)
-      def commonJs (path: String, file: Asset) = versioned(path, file)
-      def img (path: String, file: Asset) = versioned(path, file)
-      def commonImg (path: String, file: Asset) = versioned(path, file)
-    }
+在每个子项目的 `controllers` 文件夹中添加一个简单的 `Assets` 类：
 
-Add a simple `Assets` class within the `controllers` folder of each subproject:
+```scala
+package controllers.web
+class Assets @Inject() (val errorHandler: web.ErrorHandler) extends controllers.common.Assets(errorHandler)
+```
 
-    package controllers.web
-    class Assets @Inject() (val errorHandler: web.ErrorHandler) extends controllers.common.Assets(errorHandler)
+在路由文件中添加以下内容：
 
-And add the following in the routes files:
+```
+GET     /public/*file        controllers.web.Assets.public(path="/public", file: Asset)
+GET     /lib/*file           controllers.web.Assets.lib(path="/public/lib", file: Asset)
+GET     /css/*file           controllers.web.Assets.css(path="/public/stylesheets", file: Asset)
+GET     /js/*file            controllers.web.Assets.js(path="/public/javascripts", file: Asset)
+GET     /img/*file           controllers.web.Assets.img(path="/public/images", file: Asset)
+GET     /common/css/*file    controllers.web.Assets.commonCss(path="/public/lib/common/stylesheets", file: Asset)
+GET     /common/js/*file     controllers.web.Assets.commonJs(path="/public/lib/common/javascripts", file: Asset)
+GET     /common/img/*file    controllers.web.Assets.commonImg(path="/public/lib/common/images", file: Asset)
+```
 
-    GET     /public/*file        controllers.web.Assets.public(path="/public", file: Asset)
-    GET     /lib/*file           controllers.web.Assets.lib(path="/public/lib", file: Asset)
-    GET     /css/*file           controllers.web.Assets.css(path="/public/stylesheets", file: Asset)
-    GET     /js/*file            controllers.web.Assets.js(path="/public/javascripts", file: Asset)
-    GET     /img/*file           controllers.web.Assets.img(path="/public/images", file: Asset)
-    GET     /common/css/*file    controllers.web.Assets.commonCss(path="/public/lib/common/stylesheets", file: Asset)
-    GET     /common/js/*file     controllers.web.Assets.commonJs(path="/public/lib/common/javascripts", file: Asset)
-    GET     /common/img/*file    controllers.web.Assets.commonImg(path="/public/lib/common/images", file: Asset)
+## 公共文件
 
-#### Public files
+您可以将通用公共文件放置在子项目的 `common` 中，位于文件夹 `modules/common/public/` 中。常见资产被打包为依赖它的其他子项目的Webjars，因此您必须通过其相应的lib文件夹访问它们：
 
-You can put the common public files in the subproject `common`, within the folder `modules/common/public/`. The common Assets are packaged as Webjars for the other subprojects that depend on it, so you must access to them through their correspoding lib folder:
+```html
+<img src="@routes.Assets.commonImg("play.svg")"></img>
+```
 
-    <img src="@routes.Assets.commonImg("play.svg")"></img>
+并且每个子项目的具体代码将被添加到其相应的文件夹 `modules/[subproject]/public/` 中。
 
-And the specific code for each subproject will be added within its corresponding folder `modules/[subproject]/public/`.
+## 共享资源
 
-#### Shared resources
+如果您在子项目之间共享资源，例如从您的用户上传的图片，您需要从一个共享文件夹中呈现或下载它们。请注意，您不能将共享资源视为资产。
 
-If you have shared resources between your subprojects, like for example uploaded images from your users, you need to render or download them from a shared folder. Note you can't consider a shared resource like a asset.
+这个过程与定制的 `AssetsBuilder` 非常类似：
 
-The process is very similar than the custom `AssetsBuilder`:
+```scala
+package controllers.common
+abstract class SharedResources(errorHandler: DefaultHttpErrorHandler, conf: Configuration) extends Controller with utils.ConfigSupport {
+  private lazy val path = confRequiredString("rsc.folder")
+  def rsc(filename: String) = Action.async { implicit request =>  ... render the file ... }
+}
+```
 
-    package controllers.common
-    abstract class SharedResources(errorHandler: DefaultHttpErrorHandler, conf: Configuration) extends Controller with utils.ConfigSupport {
-      private lazy val path = confRequiredString("rsc.folder")
-      def rsc(filename: String) = Action.async { implicit request =>  ... render the file ... }
-    }
+在每个子项目的 `controllers` 文件夹中添加一个简单的 `SharedResources` 类：
 
-Add a simple `SharedResources` class within the `controllers` folder of each subproject:
+```scala
+package controllers.web
+class SharedResources @Inject() (val errorHandler: web.ErrorHandler, val conf: Configuration) extends controllers.common.SharedResources(errorHandler, conf)
+```
 
-    package controllers.web
-    class SharedResources @Inject() (val errorHandler: web.ErrorHandler, val conf: Configuration) extends controllers.common.SharedResources(errorHandler, conf)
+在路由文件中添加以下内容：
 
-And add the following in the routes files:
+```
+GET     /rsc/*file         controllers.web.SharedResources.rsc(file: String)
+```
 
-    GET     /rsc/*file         controllers.web.SharedResources.rsc(file: String)
+注意：请记住在配置文件中使用 `rsc.folder` 设置公用资源文件夹的绝对路径。特别适合生产。
 
-_Note:_ remember to set the absolute path to common resources folder with `rsc.folder` at the configuration file. Specially for production.
+## RequestHandler
 
-### RequestHandler
+我们需要一个全局的 `RequestHandler` 来运行整个项目并得到一些东西：
 
-We need a global `RequestHandler` to run the whole project and get to things:
+- 为每个请求(admin或web)确定子域，并将其行为委托给相应的子项目。
+- 为相应的子项目重写 `public`、`css`、`js` 和 `img` 资源的url。 这是因为对于根项目，这些资源位于 `public/lib/[subproject]/` 中。
 
-* Determine the subdomain for each request (`admin` or `web`) and delegate its behaviour to the corresponding subproject.
-* Rewrite the urls for the `public`, `css`, `js` and `img` assets for the corresponding subproject. This is because for the root project these resources are located at `public/lib/[subproject]/`.
+这些事情完成覆盖 `RequestHandler` 的 `routeRequest` 方法。
 
-These things are done overriding the `routeRequest` method of the `RequestHandler`.
+## ErrorHandler
 
-### ErrorHandler
+正如我们在 `RequestHandler` 所做的，我们也可以在 `ErrorHandler` 做相同的事情。在这种情况下，我们有一个全局的 `ErrorHandler` 以及特定的 `admin.ErrorHandler` 和 `web.ErrorHandler`。在运行整个项目时，全局项目将确定每个请求的子域，并将其行为委托给相应的子项目。 请记住，有必要使用相应的配置文件来声明每个特定的 `ErrorHandler`。
 
-As we did with `RequestHandler`, we also need to do the same for `ErrorHandler`. In this case, we have a global `ErrorHandler` and  specific `admin.ErrorHandler` and `web.ErrorHandler`.
-When running the whole project, the global one will determine the subdomain for each request and delegate its behaviour to the corresponding subproject. Remember that is necessary to declare each specific `ErrorHandler` withing the corresponding configuration file.
+## webjars
 
-### Webjars
+常见的 [Webjars](http://www.webjars.org/) 包含在 `project/Common.scala` 文件中的 `Common.commonDependencies` 字段中。在我们的案例中：
 
-The common [Webjars](http://www.webjars.org) are included within the field `Common.commonDependencies` in the file `project/Common.scala`. In our case:
+```scala
+val commonDependencies = Seq(
+  ...
+  "org.webjars" % "jquery" % "3.1.0",
+  "org.webjars" % "bootstrap" % "3.3.7-1" exclude("org.webjars", "jquery"),
+  "org.webjars" % "requirejs" % "2.3.1",
+  ...
+)
+```
 
-    val commonDependencies = Seq(
-      ...
-      "org.webjars" % "jquery" % "3.1.0",
-      "org.webjars" % "bootstrap" % "3.3.7-1" exclude("org.webjars", "jquery"),
-      "org.webjars" % "requirejs" % "2.3.1",
-      ...
-    )
+并且子项目的特定 webjars 在 `modules/[subproject]/build.sbt` 文件中声明。例如，对于 `web` 子项目：
 
-And the specific webjars for a subproject are declared in the file `modules/[subproject]/build.sbt`. For example, for the `web` subproject:
+```scala
+libraryDependencies ++= Common.commonDependencies ++: Seq(
+  "org.webjars" % "bootswatch-cerulean" % "3.3.5+4"
+)
+```
 
-    libraryDependencies ++= Common.commonDependencies ++: Seq(
-      "org.webjars" % "bootswatch-cerulean" % "3.3.5+4"
-    )
+然后，要访问他们的资源，只需记住它们在 `lib` 文件夹内。 对于前面的例子：
 
-Then, to access to their resources simply remember they are inside `lib` folder. For the previous examples:
+```html
+<link rel="stylesheet" media="screen" href="@routes.Assets.lib("bootswatch-cerulean/css/bootstrap.min.css")">
+<script src="@routes.Assets.lib("jquery/jquery.min.js")"></script>
+<script src="@routes.Assets.lib("bootstrap/js/bootstrap.min.js")"></script>
+```
 
-    <link rel="stylesheet" media="screen" href="@routes.Assets.lib("bootswatch-cerulean/css/bootstrap.min.css")">
-    <script src="@routes.Assets.lib("jquery/jquery.min.js")"></script>
-    <script src="@routes.Assets.lib("bootstrap/js/bootstrap.min.js")"></script>
+如果您对任何webjars资源的具体路由有疑问，请记住它直接下载到相关文件夹 `target/web/web-modules/main/webjars/lib` 中。因此，您可以轻松检查由webjars下载的文件结构。
 
-If you have doubts about the specific route of any webjar resource, remember it is directly downloaded within the relative folder `target/web/web-modules/main/webjars/lib`. So you can easily check the file structure that has been downloaded by the webjar.
+## CoffeeScript
 
-### CoffeeScript
+相应的插件需要在文件 `project/plugins.sbt` 中处于活动状态。
 
-The corresponding plugin needs to be active in file `project/plugins.sbt`.
+共同的 CoffeeScript 文件都在子项目 `common` 中，即 `modules/common/app/assets/javascripts` 文件夹中。每个子项目的特定代码将被添加到相应的 `modules/[subproject]/app/assets/javascripts/` 文件夹中。
 
-The common CoffeeScript files are in the subproject `common`, within the folder `modules/common/app/assets/javascripts`. And the specific code for each subproject will be added within its corresponding folder `modules/[subproject]/app/assets/javascripts/`.
+要访问已编译的文件，您只需引用它的JS等效文件：
 
-To access to the compiled file you simply have to reference to its JS equivalent:
+```html
+<script src="@routes.Assets.js("main.js")"></script>
+```
 
-    <script src="@routes.Assets.js("main.js")"></script>
+要了解更多信息，请访问有关 [CoffeeScript](http://www.playframework.com/documentation/2.6.x/AssetsCoffeeScript) 的文档页面。
 
-For more information, go to the documentation page about [CoffeeScript](http://www.playframework.com/documentation/2.5.x/AssetsCoffeeScript).
+## LESS
 
-### LESS
+对应的插件需要在文件 `project/plugins.sbt` 中活动。并且下一个配置已添加到每个子项目中，以便能够使用部分 LESS 源文件（在 `project/Common.scala` 中）:
 
-The corresponding plugin needs to be active in file `project/plugins.sbt`. And the next configuration has been added to every subproject to be able to work with partial LESS source files (in `project/Common.scala`):
+```scala
+includeFilter in (Assets, LessKeys.less) := "*.less"
+excludeFilter in (Assets, LessKeys.less) := "_*.less"
+```
 
-    includeFilter in (Assets, LessKeys.less) := "*.less"
-    excludeFilter in (Assets, LessKeys.less) := "_*.less"
+因此，每个 LESS 文件都不会被下划线（`_`）预先编译，并且它们可以从 LESS 文件中导入代码，该文件用下划线作为前缀。
 
-With that, every LESS file not prepended by an underscore (`_`) will be compiled, and they could import the code from the LESS files prepended by an underscore.
+公共的 LESS 文件在子项目的 `common` 中，即文件夹 `modules/common/app/assets/stylesheets/` 中。每个子项目的特定代码将被添加到相应的 `modules/[subproject]/app/assets/stylesheets/` 文件夹中。
 
-The common LESS files are in the subproject `common`, within the folder `modules/common/app/assets/stylesheets/`. And the specific code for each subproject will be added within its corresponding folder `modules/[subproject]/app/assets/stylesheets/`.
+导入一个普通的文件，请直接导入它（您可以查看一个示例 `modules/admin/app/assets/stylesheets/_variables.less`）：
 
-To import a common LESS file, import it directly as (you can check an example in `modules/admin/app/assets/stylesheets/_variables.less`):
+```
+@import "../../../../../common/app/assets/stylesheets/_common.less";
+```
 
-    @import "../../../../../common/app/assets/stylesheets/_common.less";
+要访问已编译的文件，您只需参考它的CSS等价：
 
-To access to the compiled file you simply have to reference to its CSS equivalent:
+```html
+<link rel="stylesheet" media="screen" href="@routes.Assets.css("main.css")">
+```
 
-    <link rel="stylesheet" media="screen" href="@routes.Assets.css("main.css")">
+要了解更多信息，请访问有关 [LESS](http://www.playframework.com/documentation/2.6.x/AssetsLess) 的文档页面。
 
-For more information, go to the documentation page about [LESS](http://www.playframework.com/documentation/2.5.x/AssetsLess).
+## 国际化：如何分割消息文件
 
-### Internationalization: how to split messages files
+嗯……这是一个棘手的问题。我们需要每个子项目的 conf 目录中的相应消息文件。但是我们有两个问题：
 
-Well... it's a tricky one. We need the corresponding messages files within the conf directory of each subproject.  But we have 2 problems:
+- 如何从公共子项目共享一些消息定义呢？
+- 我们还需要使用所有消息定义为根项目提供相应的消息文件。
 
-* What about sharing some message definitions from common subproject?
-* We also need the corresponding messages files for root project with all the message definitions.
+为了解决这个问题，我们需要利用 `sbt`。因此，在 `project/Common.scala` 定义了一个新的 [`resourceGenerator`](http://www.scala-sbt.org/release/docs/Howto-Generating-Files.html#Generate+resources)，每次编译项目时都执行该操作。它的工作方式如下：
 
-In fact, the main purpose of this project is to show you how to share and reduce your code, so let's go.
+- 将共享的消息文件放入 `modules/common/conf/messages/` 中。
+- 将每个服务的特定消息文件放入 `modules/[subproject]/conf/messages/` 中。
+- 使用 `Common.scala` 的 `appSettings` 和 `serviceSettings` 方法的 `messagesFilesFrom` 参数指定每个子项目使用的相应子项目消息文件的列表和优先级。例如，对于 `web` 子项目的 `messagesFilesFrom = Seq("common", "web")` 和根项目的 `messagesFilesFrom = Seq("common", "web")`。
+- 每次编译代码时，都会生成每个所需的消息文件，并附加相应的前一个消息文件。注意这些文件**只会**在 `target` 文件中生成。
 
-To resolve that, we need to take advantage of `sbt`. So a new [`resourceGenerator`](http://www.scala-sbt.org/release/docs/Howto-Generating-Files.html#Generate+resources) has been defined in `project/Common.scala` that is executed each time the project is compiled. It works in the following way:
+假设：如果在同一个文件中有两个巧合，最后一个将被采用。所以它从低到高排列。
 
-* Put your shared messages files within `modules/common/conf/messages/`.
-* Put your specific messages files for each services within `modules/[subproject]/conf/messages/`.
-* Use the `messagesFilesFrom` argument of `appSettings` and `serviceSettings` methods of `Common.scala` to specify the list and priority of the corresponding subprojects messages files used for each one. In the example, for `web` subproject `messagesFilesFrom = Seq("common", "web")` and for root project `messagesFilesFrom = Seq("common", "admin", "web")`.
-* Each time the code is compiled, every needed messages file will be generated appending the corresponding previous ones. Note these files will __only__ be generated within the `target` file.
+## 开发
 
-__*Assumption*__: if there are 2 coincidences within the same file, the last one will be taken. So it is ordered from lower to higher priority.
+首先，要访问 `admin` 子域，需要修改 `etc/hosts` 文件（或等效文件），将以下的URL映射到 `localhost` 或（`127.0.0.1`）。例如，添加以下几行：
 
-### Development
+```
+127.0.0.1	myweb.com
+127.0.0.1	www.myweb.com
+127.0.0.1	admin.myweb.com
+```
 
-First of all, to get access to `admin` subdomain you will need modify your `/etc/hosts` files (or the equivalent in your S.O.) to map the next URLs to `localhost` or (`127.0.0.1`). For example, add the following lines:
+然后，只需执行：
 
-    127.0.0.1	myweb.com
-    127.0.0.1	www.myweb.com
-    127.0.0.1	admin.myweb.com
+```
+$ sbt run
+```
 
-Then, simply execute:
+或者
 
-    $ sbt run
+```
+[play-multidomain-seed] $ run
+```
 
-or
+这就是全部。整个项目将使用启用所有服务的 `conf/root-dev.conf` 文件运行。你可以用你的浏览器检查网址：
 
-    [play-multidomain-seed] $ run
+- `myweb.com:9000` 或 `www.myweb.com:9000` ：公共网页
+- `admin.myweb.com:9000`：私人管理网页
 
-And that's all! The whole project will run using the `conf/root-dev.conf` file enabling all the services at once. You can go with your browser and check the URLs:
+如您所见，您必须添加默认的 `9000` 端口，但是您可以使用带有参数 `activator run -Dhttp.port=9001` 的端口。
 
-* `myweb.com:9000` or `www.myweb.com:9000`: public webpage
-* `admin.myweb.com:9000`: private admin webpage
+如果您想单独运行一个子项目，那么您必须进入子项目并运行：
 
-As you can see, you must add the default `9000` port, but you can use the port you want with the parameter with `activator run -Dhttp.port=9001`.
+```
+[play-multidomain-seed] $ project admin
+[admin] $ run
+```
 
-If you want to run only one subproject separately, you have to get into the subproject and run:
+## 测试
 
-    [play-multidomain-seed] $ project admin
-    [admin] $ run
+每个子项目在文件夹 `modules/[subproject]/test` 中都有自己的测试文件。
 
+要立即运行每个子项目的测试，只需执行：
 
-### Test
+```
+[play-multidomain-seed] $ test
+```
 
-Each subproject has its own test files within the folder `modules/[subproject]/test`.
+对于一个单独的子项目，进入它并测试：
 
-To run the tests for every subproject at once, simply execute:
+```
+[play-multidomain-seed] $ project admin
+[admin] $ test
+```
 
-    [play-multidomain-seed] $ test
+## 生产
 
-And for a unique subproject, get into it and test it:
+注意:请记住使用 `rsc.folder` 设置公共资源文件夹的绝对路径。配置文件中的文件夹。简单地执行：
 
-    [play-multidomain-seed] $ project admin
-    [admin] $ test
+```
+$sbt dist
+```
 
-### Production
+或者
 
-_Note:_ remember to set the absolute path to common resources folder with `rsc.folder` at the configuration file.
+```
+[play-multidomain-seed] $ dist
+```
 
-Simply execute:
+现在，每个模块都有一个zip文件。
 
-    $ sbt dist
+```
+/play-multidomain-seed/modules/web/target/universal/web-1.0-SNAPSHOT.zip
+/play-multidomain-seed/modules/admin/target/universal/admin-1.0-SNAPSHOT.zip
+```
 
-or
+因此，您可以提取任何您想要的地方，并分别执行它们。例如：
 
-    [play-multidomain-seed] $ dist
+```
+./admin-1.0-SNAPSHOT/bin/admin -Dconfig.resource=admin-prod.conf -Dhttp.port=9001 -Dapplication.secret=abcdefghijk &
+```
 
-Now you have a zip file for each module.
+注意它在最后添加 `&` 以在后台运行应用程序。PID将被存储在 `RUNNING_PID` 文件中，所以当你想停止应用时，只需执行：
 
-    /play-multidomain-seed/modules/web/target/universal/web-1.0-SNAPSHOT.zip
-    /play-multidomain-seed/modules/admin/target/universal/admin-1.0-SNAPSHOT.zip
+```
+kill $(cat path/to/RUNNING_PID)
+```
 
-So you can extract wherever you want and execute them separately. For example with:
+如果您想要在生产模式下测试整个项目，那么您应该能够执行start命令：
 
-    ./admin-1.0-SNAPSHOT/bin/admin -Dconfig.resource=admin-prod.conf -Dhttp.port=9001 -Dapplication.secret=abcdefghijk &
+```
+[play-multidomain-seed] $ start
+```
 
-Note it is added the `&` at the end to run the app in the background. The PID will be stored in `RUNNING_PID` file, so when you want to stop the app, just execute:
+请查阅有关[生产配置](http://www.playframework.com/documentation/2.6.x/ProductionConfiguration)的文档以获取更多参数。也可以查阅有关[应用程序的密钥](http://www.playframework.com/documentation/2.6.x/ApplicationSecret)。
 
-    kill $(cat path/to/RUNNING_PID)
-
-If you would like to test the whole project in production mode, you should be able to execute the start command as:
-
-    [play-multidomain-seed] $ start
-
-Please, check the documentation about [Production Configuration](http://www.playframework.com/documentation/2.5.x/ProductionConfiguration) for more parameters. And also check about [Application Secret](http://www.playframework.com/documentation/2.5.x/ApplicationSecret).
-
-### Thanks to
+## 感谢
 
 http://www.playframework.com/documentation/2.5.x/SBTSubProjects
 

@@ -1,11 +1,11 @@
 package controllers.admin
 
+import javax.inject.{Inject, Singleton}
 import models.admin._
-import play.api._
-import play.api.mvc._
-import play.api.i18n.{ I18nSupport, MessagesApi, Messages, Lang }
 import net.ceedubs.ficus.Ficus._
-import javax.inject.{ Inject, Singleton }
+import play.api._
+import play.api.i18n.{I18nSupport, Lang, Messages}
+import play.api.mvc._
 
 @Singleton
 class Application @Inject() (conf: Configuration) extends InjectedController with I18nSupport {
@@ -20,7 +20,7 @@ class Application @Inject() (conf: Configuration) extends InjectedController wit
     request.headers.get(REFERER).map { referer =>
       Redirect(referer).withLang(Lang(lang))
     }.getOrElse {
-      Redirect(routes.Application.index).withLang(Lang(lang))
+      Redirect(routes.Application.index()).withLang(Lang(lang))
     }
   }
 

@@ -1,13 +1,14 @@
 package admin
 
-import play.api.http.DefaultHttpErrorHandler
+import javax.inject.{Inject, Provider, Singleton}
 import play.api._
-import play.api.mvc._
+import play.api.http.DefaultHttpErrorHandler
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results._
-import play.api.i18n.{ I18nSupport, MessagesApi, Messages }
+import play.api.mvc._
 import play.api.routing.Router
+
 import scala.concurrent.Future
-import javax.inject.{ Singleton, Inject, Provider }
 
 @Singleton
 class ErrorHandler @Inject() (
@@ -27,7 +28,7 @@ class ErrorHandler @Inject() (
   }
 
   // 500 - internal server error
-  override def onProdServerError(request: RequestHeader, exception: UsefulException) = Future.successful {
+  override def onProdServerError(request: RequestHeader, exception: UsefulException): Future[Result] = Future.successful {
     InternalServerError(views.html.admin.errors.error(request, exception)(request2Messages(request)))
   }
 }

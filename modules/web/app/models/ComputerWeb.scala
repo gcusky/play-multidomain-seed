@@ -4,6 +4,6 @@ import models._
 
 object ComputerWeb {
 
-  def list = Computer.list
+  def list: List[Computer] = Computer.list
 
 }

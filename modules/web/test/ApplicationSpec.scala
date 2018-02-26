@@ -1,9 +1,8 @@
-import org.specs2.mutable._
-import org.specs2.runner._
-import org.junit.runner._
-import play.api.test._
-import play.api.inject.guice.GuiceApplicationBuilder
 import java.io.File
+
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test._
 
 /**
  * Add your spec here.
@@ -12,7 +11,7 @@ import java.io.File
  */
 class ApplicationSpec extends PlaySpecification {
 
-  val app = new GuiceApplicationBuilder().in(new File("./modules/web/")).build
+  val app: Application = new GuiceApplicationBuilder().in(new File("./modules/web/")).build
 
   "Web Module" should {
 

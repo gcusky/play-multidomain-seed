@@ -24,7 +24,9 @@ class Assets(errorHandler: DefaultHttpErrorHandler, assetsMetadata: AssetsMetada
 
 /*
 * Shared resources between subprojects. The base path is defined by the "rsc.folder" in the conf file.
+* 子项目之间的共享资源。 基本路径由conf文件中的“rsc.folder”定义。
 * It's an extremely simpliflied version of the code from Assets.scala (https://github.com/playframework/playframework/blob/2.4.x/framework/src/play/src/main/scala/play/api/controllers/Assets.scala)
+* 这是来自Assets.scala的代码的一个非常简化的版本
 */
 abstract class SharedResources(errorHandler: DefaultHttpErrorHandler, conf: Configuration) extends InjectedController {
   private lazy val path = conf.underlying.as[String]("rsc.folder")
